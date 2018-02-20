@@ -84,6 +84,7 @@
                 document.addEventListener("mouseup", doMouseUp, false);
             }
             colorChoice = Number(document.getElementById("colorChoice").value);
+            toolChoice = Number(document.getElementById("toolChoice").value);
             // TODO: Anything else to do when mouse is first pressed?
         }
         
@@ -103,21 +104,71 @@
             if ( Math.abs(x-prevX) + Math.abs(y-prevY) < 3 ) {
                 return;  // don't draw squares too close together
             }
-                
+            
+            
+            //Set Colour    
             if (colorChoice == 0) {
                 graphics.fillStyle = randomColorString();
+                graphics.strokeStyle = graphics.fillStyle;
             }
             else if (colorChoice == 1) {
                 graphics.fillStyle = "red";
+                graphics.strokeStyle = "red";
             }
             else if (colorChoice == 2) {
                 graphics.fillStyle = "green";
+                graphics.strokeStyle = "green";
             }
             else if (colorChoice == 3) {
                 graphics.fillStyle = "blue";
+                graphics.strokeStyle = "blue";
+            }else if (colorChoice == 4) {
+                graphics.fillStyle = "#E0B0FF";
+                graphics.strokeStyle = "#E0B0FF";
             }
-            graphics.fillRect(x-20,y-20,40,40);
-            graphics.strokeRect(x-20,y-20,40,40);
+            
+            //Draw Shape
+            var size = 20;
+            if (toolChoice == 0){//hourglass
+            	graphics.strokeStyle = "#000000";
+            	graphics.fillPoly(x-size,y-size, x+size,y+size, x-size,y+size, x+size,y-size);
+            	graphics.strokePoly(x-size,y-size, x+size,y+size, x-size,y+size, x+size,y-size);
+            
+            }else if (toolChoice == 1){//line
+            
+            	graphics.strokeLine(prevX, prevY, x, y);
+            
+            }else if (toolChoice == 2){//circle
+            
+            	graphics.strokeCircle(startX, startY, Math.sqrt(Math.pow((startX-x),2) + Math.pow((startY-y),2)));
+            
+            }else if (toolChoice == 3){//stickman
+            	graphics.strokeStyle = "#000000";
+            	
+            	//arms
+            	graphics.fillPoly(x-15,y+3, x-15,y-3, x+15,y-3, x+15,y+3);
+            	graphics.strokePoly(x-15,y+3, x-15,y-3, x+15,y-3, x+15,y+3);
+            	//body
+            	graphics.fillPoly(x-4,y-30, x+4,y-30, x+4,y+15, x-4,y+15);
+            	graphics.strokePoly(x-4,y-30, x+4,y-30, x+4,y+15, x-4,y+15);
+            	//head
+            	graphics.fillCircle(x,y-20, 15);
+            	graphics.strokeCircle(x,y-20, 15);
+            	//legs
+            	graphics.fillPoly(x-15,y+30, x-10,y+30, x,y+15, x-4,y+15);
+            	graphics.fillPoly(x+15,y+30, x+10,y+30, x,y+15, x+4,y+15);
+            	graphics.strokePoly(x-15,y+30, x-10,y+30, x,y+15, x-4,y+15);
+            	graphics.strokePoly(x+15,y+30, x+10,y+30, x,y+15, x+4,y+15);
+    			//features
+    			graphics.fillStyle = "#000000";
+    			graphics.fillCircle(x-7,y-25, 5);
+    			graphics.fillCircle(x+7,y-25, 5);
+    			graphics.fillPoly(x+5,y-18, x+5,y-16, x-5,y-16, x-5,y-18);
+            
+            }
+            
+            
+            
             
             /*------------------------------------------------------------*/
             
@@ -223,7 +274,15 @@
         }
     }    // end of addGraphicsContextExtras()
     
-       
+      
+    //Do clear clears the screen and sets it to white 
+    function doClear() {
+    
+    	graphics.clearRect(0, 0, 800, 600);
+    
+    }//end doClear
+    
+    
     /**
      * The init() function is called after the page has been
      * loaded.  It initializes the canvas and graphics variables,
@@ -244,6 +303,7 @@
         installMouseHandler();
         graphics.fillStyle = "white";
         graphics.fillRect(0,0,canvas.width,canvas.height);
+        document.getElementById("clearButton").onclick = doClear; //set clear button to call doClear function
     }
     
 </script>
@@ -257,13 +317,22 @@
 <p>JavaScript is required to use this page.</p>
 </noscript>
 
-<p><b>Color:</b>
+<p><b>Tool:</b>
+    <select id="toolChoice">
+        <option value="0">Hourglass</option>
+        <option value="1">Curve</option>
+        <option value="2">Circle</option>
+        <option value="3">Stickman</option>
+    </select>
+    <b>Color:</b>
     <select id="colorChoice">
         <option value="0">Random</option>
         <option value="1">Red</option>
         <option value="2">Green</option>
         <option value="3">Blue</option>
+        <option value="4">Mauve</option>
     </select>
+    <button id="clearButton">Clear</button>
 </p>
 
 <div id="canvasholder">
