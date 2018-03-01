@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Bicycle on Hills</title>
+<title>Subroutine Hieararchy</title>
 
 <script>
 
@@ -20,11 +20,22 @@
             
     var frameNumber = 0;  // Current frame number. goes up by one in each frame.
     
-    var rotationDir = 1;
+    scale = 1;
+    startPoint = -5;
+    currentHill = -1;
+    dir = -1;
     
-    var prevAngle = 0;
+    function updateDir(){
     
-    var rollingDirection = 1;
+    	dir *= -1;
+    
+    }
+    
+    function nextHill(){
+    
+    	currentHill= (currentHill + 1)%10;
+    }
+    
 
     // TODO:  Define any other necessary state variables.
     
@@ -32,27 +43,22 @@
      *  Responsible for drawing the entire scene.  The display is filled with the background
      *  color before this function is called.
      */
-    function drawWorld() {
+    function drawWorld() { 
+    	 
+    	speed = 0.02;
+    	
+    	createRoad();
+    	
+    	x = startPoint + 1 +  currentHill;
+   	
+    	graphics.save();
 
-        // TODO: Draw the content of the scene.
-        
- 
-        graphics.save();
-        graphics.translate(0.2, -0.5);
-        graphics.scale(1.5,1.5);
- 	    windMill('blue');
- 	    graphics.restore();
- 	    
- 	    graphics.save();
-        graphics.translate(-2.4, 2);
- 	    windMill('purple');
- 	    graphics.restore();
- 	    
- 	    graphics.save();
-        graphics.translate(2.4, 2.2);
-        graphics.scale(0.7, 0.7);
- 	    windMill('green');
- 	    graphics.restore();
+		graphics.translate(x, 0);
+		curvingBicycle(dir, speed);
+    	    	
+		graphics.restore();
+
+		
 
     }
     
@@ -62,61 +68,45 @@
      */
     function updateFrame() {
         frameNumber++;
+        if ((frameNumber*speed)%1 == 0 ) {
+    		updateDir();
+    		nextHill();
+		} 
     }
     
-    function updateRotationDir(){
-    	rotationDir *= -1;
+    function curvingBicycle(dir, speed){
+    
+    	graphics.save()
+    	
+    	
+    	x = (frameNumber*speed)%1 - 0.5;
+    	y = dir * Math.sqrt(0.5*0.5 - x*x);
+    	graphics.translate(x, y);
+    	graphics.rotate(dir*Math.PI/2 - dir*(Math.PI/(1/speed)*frameNumber)%Math.PI);
+    	
+    	bicycle(-1); 
+    	    	
+		graphics.restore();
+    
     }
     
-    function updatePrevAngle(){
-    
-    	prevAngle += Math.PI/1000*rotationDir;
-    }
-    
-    function updateRollingDirection(){
-    	rollingDirection *= -1;
-    }
- 
- 	function windMill(colour){
- 		
- 		
- 		graphics.save();
- 	    pivotingWheelBar(Math.PI/6);
- 	    graphics.restore();
- 		
- 		graphics.save();
- 		graphics.fillStyle = colour;
- 		graphics.translate(0,-1.5);
- 		graphics.scale(0.5, 1.5);
- 		filledTriangle();
- 	    graphics.restore();
- 	}
-
- 	
- 	function pivotingWheelBar(pivotAngle){
- 		
- 		if(prevAngle >= pivotAngle || prevAngle <= -pivotAngle ) updateRotationDir();
- 		
- 		var translation = 0-(2/(2*pivotAngle)*prevAngle)
- 		 		
-        if (Math.abs(2/(2*pivotAngle)*prevAngle) == 45){
-        	updateRollingDirection();
-       	}
- 		
- 		graphics.save(); 
-		    graphics.rotate(prevAngle);
-		    wheelBar();
+	function createRoad(){
 		
-			graphics.save();
-				graphics.translate(translation, 0);
-				bicycle(rollingDirection);
-		    
-		    graphics.restore();
-        
-        graphics.restore();
-        
-        updatePrevAngle();
- 	}
+		for(var i=1; i + startPoint <= 5; i+=1){
+			
+			graphics.save()
+			graphics.translate(startPoint + i,0);
+			
+			if(i%2 == 0){
+				graphics.scale(1, -1);
+			}
+			graphics.scale(scale,1)
+			semiCircle();
+			graphics.restore();
+		}
+	
+	}
+ 	
  	
  	function bicycle(direction){
  	
@@ -136,7 +126,7 @@
         graphics.save();	
         	graphics.translate(0.125,0.15); 
         	graphics.scale(0.25,0.25);
-        	rotatingWheel(5*direction);
+        	rotatingWheel(10*direction);
         
         graphics.restore();
         
@@ -144,7 +134,7 @@
         
         	graphics.translate(-0.125,0.15); 
         	graphics.scale(0.25,0.25);
-        	rotatingWheel(5*direction);
+        	rotatingWheel(10*direction);
         
         graphics.restore();
 
@@ -175,28 +165,6 @@
         
  	
  	}
- 	
-    function wheelBar(){
-    	
-    	//draw left wheel
-    	graphics.save();
-			graphics.translate(-1,0);
-			rotatingWheel(2);
-    	graphics.restore();
-    	
-    	//draw right wheel
-    	graphics.save();
-			graphics.translate(1,0);
-			rotatingWheel(2);
-    	graphics.restore();
-    	
-    	//Draw Bar
-    	graphics.save();
-			graphics.fillStyle = 'red'
-			graphics.scale(2, 0.15);
-    	filledRect();
-    	graphics.restore();
-    }
     
     function rotatingWheel(speed) { 
         graphics.save(); 
@@ -246,6 +214,13 @@
     function circle() { // Strokes a circle, diameter = 1, center = (0,0)
         graphics.beginPath();
         graphics.arc(0,0,0.5,0,2*Math.PI);
+        graphics.stroke();
+    }
+    
+    function semiCircle(){
+    
+    	graphics.beginPath();
+        graphics.arc(0,0,0.5,0,Math.PI);
         graphics.stroke();
     }
 

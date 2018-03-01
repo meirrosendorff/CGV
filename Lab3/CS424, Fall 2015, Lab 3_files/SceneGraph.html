@@ -23,7 +23,6 @@
     var world;  // A SceneGraphNode representing the entire scene. 
     
     // TODO: Define global variables to represent animated objects in the scene.
-    var rotatingRect;  // (DELETE THIS EXAMPLE)
     
     /**
      *  Builds the data structure that represents the entire picture.
@@ -31,11 +30,25 @@
     function createWorld() {
 
         world = new CompoundObject();  // Root node for the scene graph.
-
+		topBar = new TransformedObject(wheelBar());
         // TODO: Create objects and add them to the scene graph.
-        rotatingRect = new TransformedObject(filledRect);   // (DELETE THIS EXAMPLE)
-        rotatingRect.setScale(2,2).setColor("red"); 
-        world.add(rotatingRect);
+        //rotatingRect = new TransformedObject(filledRect);   // (DELETE THIS EXAMPLE)
+        //rotatingRect.setScale(2,2).setColor("red"); 
+        //world.add(rotatingRect);
+		
+		blueWindMill = new TransformedObject(windMill('blue'));
+		blueWindMill.setScale(1.5, 1.5).setTranslation(0.2, -0.5);
+		
+		greenWindMill = new TransformedObject(windMill('green'));
+		greenWindMill.setScale(0.7, 0.7).setTranslation(2.4, 2.2);
+		
+		purpleWindMill = new TransformedObject(windMill('purple'));
+		purpleWindMill.setTranslation(-2.4, 2);
+ 	   
+ 	    world.add(greenWindMill);
+        world.add(blueWindMill);
+        world.add(purpleWindMill);
+        
     }
     
     /**
@@ -45,12 +58,71 @@
     function updateFrame() {
         frameNumber++;
 
-        // TODO: Update state in preparation for drawing the next frame.
-        rotatingRect.setRotation(frameNumber*0.75); // (DELETE THIS EXAMPLE)
-        
+        wheelLeft.setRotation(frameNumber*2);
+        wheelRight.setRotation(frameNumber*2);
+        topBar.setRotation(frameNumber*-0.5);
+
     }
  
+ 
+  	function windMill(colour){
+ 		
+		myWindMill = new CompoundObject();
+ 		
+ 		base = new TransformedObject(filledTriangle.setFillColor(colour));
+ 		
+ 		base.setTranslation(0, -1.5);
+ 		base.setScale(0.5, 1.5);
+ 
+ 		myWindMill.add(topBar).add(base);
+ 		
+ 		
+ 		return myWindMill;
 
+ 	}
+ 	
+
+ 	
+ 	function wheelBar(){
+ 	
+ 	
+ 		wheelRight = new TransformedObject(wheel());
+ 		wheelRight.setTranslation(1,0);
+ 		wheelLeft = new TransformedObject(wheel());
+ 		wheelLeft.setTranslation(-1,0);
+
+		bar = new TransformedObject(filledRect.setFillColor('red'));
+		
+		bar.setScale(2, 0.15);
+    	
+    	myBar = new CompoundObject()
+    	myBar.add(bar);
+    	myBar.add(wheelLeft);
+    	myBar.add(wheelRight);
+    	
+    	return myBar
+		
+ 	
+ 	}
+ 
+	function wheel(){
+	   
+        myWheel = new CompoundObject();
+        myWheel.add(new TransformedObject(circle));
+        numSpokes = 6;
+    	
+    	for(var i=1; i <= numSpokes; i++){
+
+			spoke = new TransformedObject(line);
+			spoke.setRotation(i*180/numSpokes);
+			myWheel.add(spoke);
+    	}
+    	
+    	return myWheel;
+	
+	}
+
+    
     //------------------- A Simple Scene Object-Oriented Scene Graph API ----------------
     
     /**
@@ -173,7 +245,11 @@
         g.restore();
     }
     
+    
+    
+    
            // Create some basic shapes as custom SceneGraphNode objects.
+
            
     var line = new SceneGraphNode();  // Line from (-0.5,0) to (0.5,0)
     line.doDraw = function(g) {
