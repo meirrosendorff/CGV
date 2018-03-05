@@ -69,7 +69,7 @@
  		
 		myWindMill = new CompoundObject();
  		
- 		base = new TransformedObject(filledTriangle.setFillColor(colour));
+ 		base = new TransformedObject(filledTriangle).setColor(colour);
  		
  		base.setTranslation(0, -1.5);
  		base.setScale(0.5, 1.5);
@@ -91,9 +91,9 @@
  		wheelLeft = new TransformedObject(wheel());
  		wheelLeft.setTranslation(-1,0);
 
-		bar = new TransformedObject(filledRect.setFillColor('red'));
+		bar = new TransformedObject(filledRect);
 		
-		bar.setScale(2, 0.15);
+		bar.setScale(2, 0.15).setColor('red');
     	
     	myBar = new CompoundObject()
     	myBar.add(bar);
