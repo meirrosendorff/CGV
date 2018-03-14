@@ -62,7 +62,7 @@
 		
 		//draw bottom left
 		graphics.translate(-300,0);
-		graphics.lineWidth=3;
+		graphics.lineWidth=2;
 		var numCircles = 5;
 		height = 300/(2*numCircles + 2);
 		var width = 140;
@@ -86,6 +86,8 @@
 		graphics.lineWidth=5;
 		graphics.moveTo(150, 280);
 		graphics.bezierCurveTo(-50,140, 0,-60, 150,50);
+
+		
 		graphics.moveTo(150, 280);
 		graphics.bezierCurveTo(350,140, 300,-60, 150,50);
 		graphics.stroke();

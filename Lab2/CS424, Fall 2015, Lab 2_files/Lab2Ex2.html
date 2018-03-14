@@ -165,6 +165,12 @@
     			graphics.fillCircle(x+7,y-25, 5);
     			graphics.fillPoly(x+5,y-18, x+5,y-16, x-5,y-16, x-5,y-18);
             
+            }else if (toolChoice == 4){//eraser
+                
+                graphics.fillStyle = "white";
+                graphics.strokeStyle = "white"
+            	graphics.fillPoly(x-15,y-15, x-15,y+15, x+15,y+15, x+15,y-15)
+
             }
             
             
@@ -323,6 +329,7 @@
         <option value="1">Curve</option>
         <option value="2">Circle</option>
         <option value="3">Stickman</option>
+        <option value="4">Eraser</option>
     </select>
     <b>Color:</b>
     <select id="colorChoice">

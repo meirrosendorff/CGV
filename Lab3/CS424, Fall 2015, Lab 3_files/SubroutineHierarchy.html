@@ -36,22 +36,22 @@
 
         // TODO: Draw the content of the scene.
         
- 
+ 		//Draw each windmill setting the translation
         graphics.save();
-        graphics.translate(0.2, -0.5);
-        graphics.scale(1.5,1.5);
- 	    windMill('blue');
+		    graphics.translate(0.2, -0.5);
+		    graphics.scale(1.5,1.5);
+	 	    windMill('blue');
  	    graphics.restore();
  	    
  	    graphics.save();
-        graphics.translate(-2.4, 2);
- 	    windMill('purple');
+		    graphics.translate(-2.4, 2);
+	 	    windMill('purple');
  	    graphics.restore();
  	    
  	    graphics.save();
-        graphics.translate(2.4, 2.2);
-        graphics.scale(0.7, 0.7);
- 	    windMill('green');
+		    graphics.translate(2.4, 2.2);
+		    graphics.scale(0.7, 0.7);
+	 	    windMill('green');
  	    graphics.restore();
 
     }
@@ -65,25 +65,29 @@
     }
     
     function updateRotationDir(){
+    //makes the object begin rotating in the oposite direction after reaching threshold
     	rotationDir *= -1;
     }
     
     function updatePrevAngle(){
-    
+    	//set the angle needed for the next rotation
     	prevAngle += Math.PI/1000*rotationDir;
     }
     
     function updateRollingDirection(){
+    	//change the direction that the wheels rotate in
     	rollingDirection *= -1;
     }
  
  	function windMill(colour){
+ 		//Draws a windmill object
  		
- 		
+ 		//Draw the rotating bar
  		graphics.save();
- 	    pivotingWheelBar(Math.PI/6);
+ 	    	pivotingWheelBar(Math.PI/6);
  	    graphics.restore();
  		
+ 		//Draw the base
  		graphics.save();
  		graphics.fillStyle = colour;
  		graphics.translate(0,-1.5);
@@ -94,32 +98,37 @@
 
  	
  	function pivotingWheelBar(pivotAngle){
+ 		//creates a pivoting bar
  		
+ 		//when you reach a threshold start rotating in the oposite direction
  		if(prevAngle >= pivotAngle || prevAngle <= -pivotAngle ) updateRotationDir();
  		
- 		var translation = 0-(2/(2*pivotAngle)*prevAngle)
+ 		var translation = 0-(2/(2*pivotAngle)*prevAngle) //translates the bike in proportion to ensure it
+ 														//takes the full rotation to move
  		 		
-        if (Math.abs(2/(2*pivotAngle)*prevAngle) == 45){
+        if (Math.abs(2/(2*pivotAngle)*prevAngle) == 45){//when you change direction change the tires turning direction
         	updateRollingDirection();
        	}
  		
  		graphics.save(); 
-		    graphics.rotate(prevAngle);
-		    wheelBar();
+		    graphics.rotate(prevAngle); //rotate the scene
+		    wheelBar();					//draw the bar
 		
 			graphics.save();
-				graphics.translate(translation, 0);
-				bicycle(rollingDirection);
+				graphics.translate(translation, 0); //translate the bike on the bar
+				bicycle(rollingDirection);	//draw the bicycle
 		    
 		    graphics.restore();
         
         graphics.restore();
         
-        updatePrevAngle();
+        updatePrevAngle(); //calculate the next angle of the bar
  	}
  	
  	function bicycle(direction){
- 	
+ 		//draw the bicycle
+ 		
+ 		//Draw the triangulare frame
  		graphics.save();
        		graphics.translate(0, 0.125);
 			graphics.scale(0.25,0.25);
@@ -128,34 +137,35 @@
 			graphics.lineTo(0.5,0);
 			graphics.lineTo(0,1);
 			graphics.closePath();
-			graphics.stroke();
-			
+			graphics.stroke();	
         graphics.restore();
 
-        
+        //add the front wheel 
         graphics.save();	
         	graphics.translate(0.125,0.15); 
         	graphics.scale(0.25,0.25);
         	rotatingWheel(5*direction);
-        
         graphics.restore();
         
+        //add the back wheel
         graphics.save();	
         
         	graphics.translate(-0.125,0.15); 
         	graphics.scale(0.25,0.25);
         	rotatingWheel(5*direction);
         
+        //add the handle stand
         graphics.restore();
 
         	graphics.save();	
 		    graphics.translate(0.125, 0.25);
 		    graphics.rotate(Math.PI/2);
 			graphics.scale(0.25,0.25);
-		line()
+			line()
         
         graphics.restore();
 
+		//add the handlebar
         graphics.save();	
 		    graphics.translate(0.125, 0.375);
 		    graphics.rotate(Math.PI/4);
@@ -164,12 +174,12 @@
 			line();
 		    
         graphics.restore();
-        
-		    graphics.save();	
+    	
+    	//add the seat    
+		graphics.save();	
 		    graphics.translate(0, 0.375);
 		    graphics.rotate(Math.PI/18);
 			graphics.scale(0.1,0.05);
-
 			filledRect();
         graphics.restore();
         
@@ -199,6 +209,7 @@
     }
     
     function rotatingWheel(speed) { 
+    	//creates a rotating wheel
         graphics.save(); 
 		    graphics.rotate( (frameNumber*speed) * Math.PI/180 );
 		   	wheel();
@@ -206,7 +217,7 @@
     }
     
     function wheel(){
-    	
+    	//creates a wheel
     	graphics.save();
     	circle();
     	spokes(6);
@@ -214,7 +225,7 @@
     }
     
     function spokes(spokes){
-    	
+    	//creates spokes number of spokes
     	numSpokes = spokes;
     	for(var i=1; i <= numSpokes; i++){
     		graphics.save();

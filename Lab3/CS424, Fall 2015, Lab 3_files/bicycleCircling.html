@@ -25,223 +25,30 @@
     currentHill = -1;
     dir = -1;
     
+    //The delay in frames for each bikes before they start moving
     bike2Delay = 50;
     bike3Delay = 100;
     bike4Delay = 150;
+    
+    //The number of frames since that bike has started moving
     bike2Distance = 0;
     bike3Distance = 0;
     bike4Distance = 0;
+    
+    //The current hill the bike is on
     bike2Hill = -1;
     bike3Hill = -1;
     bike4Hill = -1;
+    
+    //The direction the bike is travelling
+    //-1 is downhill, 1 is uphill
     bike2Dir = -1;
     bike3Dir = -1;
     bike4Dir = -1;
-    
-    function updateDir(){
-    
-    	dir *= -1;
-    
-    }
-    
-    function nextHill(){
-    
-    	currentHill= (currentHill + 1)%10;
-    }
-    
+   
 
-    // TODO:  Define any other necessary state variables.
-    
-    /**
-     *  Responsible for drawing the entire scene.  The display is filled with the background
-     *  color before this function is called.
-     */
-    function drawWorld() { 
-    
-    	background();
-    	sky();
-    			
-    	graphics.save();
-    	graphics.translate(0,-1.7);
-    	graphics.rotate(-Math.PI/3);
-    	stairCase();
-    	
-    	graphics.restore();
-    	 
-    	graphics.save();
-    	
-    	graphics.transform(1,0.3,0.3,1,0,0);
-    	graphics.rotate(-Math.PI/18);
-    	
-    	speed = 0.05;
-    	
-    	createRoad();
-   	
-    	graphics.save();
 
-		graphics.translate(startPoint + 1 +  currentHill, 0);
- 	    scale = 1.5 - (((1/(10.0/speed)*10*frameNumber)%10)/10.0);
-		curvingBicycle(dir, speed, scale, frameNumber);
-
-		graphics.restore();
-		
-		if (frameNumber > bike2Delay){
-		
-		    graphics.save();
-
-			graphics.translate(startPoint + 1 +  bike2Hill, 0);
-	 	    scale = 1.5 - (((1/(10.0/speed)*10*bike2Distance)%10)/10.0);
-			curvingBicycle(bike2Dir, speed, scale, bike2Distance);
-
-			graphics.restore();
-		
-		}
-		
-		if (frameNumber > bike3Delay){
-		
-		    graphics.save();
-
-			graphics.translate(startPoint + 1 +  bike3Hill, 0);
-	 	    scale = 1.5 - (((1/(10.0/speed)*10*bike3Distance)%10)/10.0);
-			curvingBicycle(bike3Dir, speed, scale, bike3Distance);
-
-			graphics.restore();
-		}
-		
-		if (frameNumber > bike4Delay){
-		
-		    graphics.save();
-
-			graphics.translate(startPoint + 1 +  bike4Hill, 0);
-	 	    scale = 1.5 - (((1/(10.0/speed)*10*bike4Distance)%10)/10.0);
-			curvingBicycle(bike4Dir, speed, scale, bike4Distance);
-
-			graphics.restore();
-		}
-		
-		
-
-		graphics.restore();
-
-    }
-    
-    function sky(){
-    
-
-    		graphics.save();
-    		graphics.transform(1,0.1,0.1,1,0,0);
-    		cloudSet();
-    		graphics.restore();
-
-    		graphics.save();
-    		graphics.transform(1,0.05,0.1,1,1,1);
-    		cloudSet();
-    		graphics.restore();
-    		
-    		graphics.save();
-    		graphics.transform(1,0,0,1,-0.8,1);
-    		cloudSet();
-    		graphics.restore();
-    		
-    		graphics.save();
-    		graphics.transform(1,0,0, 1,-1,0);
-    		cloudSet();
-    		graphics.restore();
-
-			graphics.save();
-    		graphics.transform(1.2,0,0, 1.2, 0.3,0);
-    		cloudSet();
-    		graphics.restore();
-    
-    		graphics.save();
-    		graphics.transform(1.2,0,0, 1, 0.7,0.1);
-    		graphics.rotate(-Math.PI/18);
-    		cloudSet();
-    		graphics.restore();
-    }
-    
-    function cloudSet(){
-    
-    	x = [42, 445, 65, 76, 29];
-        nextCenter = 1;
-    	for (i = 0; i <= 4; i++){
-    	
-    		graphics.save();
-    		
-    		graphics.translate(-4 + nextCenter, 2 + (x[i]%0.3- 0.15));
-    		scale = 1/(nextCenter+1) + (x[i]%0.25 - 0.125)/nextCenter;
-    		graphics.scale(scale, scale);
-    		
-    		nextCenter += 2;
-    		
-    		cloud();
-    		graphics.restore();
-    	
-    	
-    	}
-    
-    }
-    
-    function cloud(){
-    
-    	graphics.save()
-    	graphics.fillStyle = "white";
-    	graphics.save()
-    	graphics.translate(0.25, 0.25);
-    	filledCircle();
-    	graphics.restore();
-    	graphics.save()
-    	graphics.translate(0.25, -0.25);
-    	filledCircle();
-    	graphics.restore();
-    	graphics.save()
-    	graphics.translate(-0.25, 0.25);
-    	filledCircle();
-    	graphics.restore();
-    	graphics.save()
-    	graphics.translate(-0.25, -0.25);
-    	filledCircle();
-    	graphics.restore();
-    	graphics.restore();
-    
-    }
-    
-    
-    
-    function background(){
-    
-    
-    	graphics.save();
-		graphics.beginPath();
-		graphics.moveTo(10, 10);
-		graphics.lineTo(10,-10);
-		graphics.lineTo(-10,-10);
-		graphics.lineTo(-10,10);
-		graphics.closePath();
-		graphics.fillStyle = "lightblue";
-		graphics.fill();
-		graphics.restore();
-    
-    }
-    
-    function stairCase(){
-    
-    	graphics.save();
-    	graphics.translate(0,-3);
-		graphics.lineWidth=0.02;
-		graphics.strokeStyle = "blue";
-		var numCircles = 250;
-		height = 9.0/(2*numCircles + 2);
-		var width = 5.0;
-		for (var i = numCircles; i >= 1; i--){
-			strokeOval(0, Math.abs(height * i * 2), width/(numCircles+1) * (numCircles -(i-1)), height);
-		}
-    	graphics.restore();
-    
-    
-    }
-    
-    /**
+	 /**
      * This method is called just before each frame is drawn.  It updates the modeling
      * transformations of the objects in the scene that are animated.
      */
@@ -251,8 +58,8 @@
         if (frameNumber > bike3Delay) bike3Distance++;
         if (frameNumber > bike4Delay) bike4Distance++;
         if ((frameNumber*speed)%1 == 0 ) {
-    		updateDir();
-    		nextHill();
+    		dir *= -1;
+    		currentHill= (currentHill + 1)%10;
 		} 
 		
         if ((bike2Distance*speed)%1 == 0 && bike2Distance > 0) {
@@ -274,63 +81,248 @@
 		}
 		
     }
+    // TODO:  Define any other necessary state variables.
     
-    function curvingBicycle(dir, speed, scale, distance){
+    /**
+     *  Responsible for drawing the entire scene.  The display is filled with the background
+     *  color before this function is called.
+     */
+    function drawWorld() { 
+    
+    	//Draw the background
+    	background();
+    	
+    	//Draw the clouds in the sky
+    	sky();
+    		
+    	//Draww the patterned water to give an impression of distance
+    	graphics.save();
+			graphics.translate(0,-1.7);
+			graphics.rotate(-Math.PI/3);
+			linePattern();
+    	graphics.restore();
+    	 
+    	graphics.save();
+    		//Skew everything inorder to make the hills look less circulare
+			graphics.transform(1,0.3,0.3,1,0,0);
+			//rotate to make it look straighter after the skew
+			graphics.rotate(-Math.PI/18);
+			//speed that the bikes move in distance per frame
+			speed = 0.05;
+			
+			//creates the hills
+			createRoad();
+	   	
+	   		//Draw each bike, if theres a delay wait the delay before drawing
+			graphics.save();
+				graphics.translate(startPoint + 1 +  currentHill, 0);//move the bike to the current hill its on
+		 	    scale = 1.5 - (((1/(10.0/speed)*10*frameNumber)%10)/10.0);//scale the bike down as it moves towards the end
+				curvingBicycle(dir, speed, scale, frameNumber);//draw the bicycle
+			graphics.restore();
+		
+			if (frameNumber > bike2Delay){
+		
+				graphics.save();
+					graphics.translate(startPoint + 1 +  bike2Hill, 0);
+			 	    scale = 1.5 - (((1/(10.0/speed)*10*bike2Distance)%10)/10.0);
+					curvingBicycle(bike2Dir, speed, scale, bike2Distance);
+				graphics.restore();
+		
+			}
+		
+			if (frameNumber > bike3Delay){
+		
+				graphics.save();
+					graphics.translate(startPoint + 1 +  bike3Hill, 0);
+			 	    scale = 1.5 - (((1/(10.0/speed)*10*bike3Distance)%10)/10.0);
+					curvingBicycle(bike3Dir, speed, scale, bike3Distance);
+				graphics.restore();
+			}
+		
+			if (frameNumber > bike4Delay){
+		
+				graphics.save();
+					graphics.translate(startPoint + 1 +  bike4Hill, 0);
+			 	    scale = 1.5 - (((1/(10.0/speed)*10*bike4Distance)%10)/10.0);
+					curvingBicycle(bike4Dir, speed, scale, bike4Distance);
+				graphics.restore();
+			}
+		graphics.restore();
+
+    }
+    
+    function sky(){
+    		//Draws 6 sets of clouds transforming each one differently
+
+    		graphics.save();
+				graphics.transform(1,0.1,0.1,1,0,0);
+				cloudSet();
+    		graphics.restore();
+
+    		graphics.save();
+				graphics.transform(1,0.05,0.1,1,1,1);
+				cloudSet();
+    		graphics.restore();
+    		
+    		graphics.save();
+				graphics.transform(1,0,0,1,-0.8,1);
+				cloudSet();
+    		graphics.restore();
+    		
+    		graphics.save();
+				graphics.transform(1,0,0, 1,-1,0);
+				cloudSet();
+    		graphics.restore();
+
+			graphics.save();
+				graphics.transform(1.2,0,0, 1.2, 0.3,0);
+				cloudSet();
+    		graphics.restore();
+    
+    		graphics.save();
+				graphics.transform(1.2,0,0, 1, 0.7,0.1);
+				graphics.rotate(-Math.PI/18);
+				cloudSet();
+    		graphics.restore();
+    }
+    
+    function cloudSet(){
+    
+    	//Draws 5 clouds along a line scaling the clouds down as it goes
+    	
+    	x = [42, 445, 65, 76, 29]; 	//random numbers used for scaling the clouds and moving them off center 
+    								//so that they don't lye in one line
+        nextCenter = 1;
+    	for (i = 0; i <= 4; i++){
+    	
+    		graphics.save();
+				graphics.translate(-4 + nextCenter, 2 + (x[i]%0.3- 0.15));
+				scale = 1/(nextCenter+1) + (x[i]%0.25 - 0.125)/nextCenter;
+				graphics.scale(scale, scale);
+				nextCenter += 2;
+				cloud();
+    		graphics.restore();
+    	}
+    
+    }
+    
+    function cloud(){
+    	//Draws a cloud using 4 circles overlayed on eachother
     
     	graphics.save()
+			graphics.fillStyle = "white";
+			graphics.save()
+				graphics.translate(0.25, 0.25);
+				filledCircle();
+			graphics.restore();
+			graphics.save()
+				graphics.translate(0.25, -0.25);
+				filledCircle();
+			graphics.restore();
+			graphics.save()
+				graphics.translate(-0.25, 0.25);
+				filledCircle();
+			graphics.restore();
+			graphics.save()
+				graphics.translate(-0.25, -0.25);
+				filledCircle();
+			graphics.restore();
+    	graphics.restore();
+    
+    }
+    
+    
+    
+    function background(){
+    	//creates a giant blue square
+    
+    	graphics.save();
+			graphics.beginPath();
+			graphics.moveTo(10, 10);
+			graphics.lineTo(10,-10);
+			graphics.lineTo(-10,-10);
+			graphics.lineTo(-10,10);
+			graphics.closePath();
+			graphics.fillStyle = "lightblue";
+			graphics.fill();
+		graphics.restore();
+    
+    }
+    
+    function linePattern(){
+    	//uses lots of stacked circles of decreasing sizes to give the impression of a triangle
+    	//with different withd lines in it 
+    	graphics.save();
+			graphics.translate(0,-3);
+			graphics.lineWidth=0.02;
+			graphics.strokeStyle = "blue";
+			var numCircles = 250;
+			height = 9.0/(2*numCircles + 2);
+			var width = 5.0;
+			for (var i = numCircles; i >= 1; i--){
+				strokeOval(0, Math.abs(height * i * 2), width/(numCircles+1) * (numCircles -(i-1)), height);
+			}
+    	graphics.restore();
+    
+    }
+    
+    function createRoad(){
+		//creates hilly road and fills it with colour
+		graphics.save();
+			graphics.beginPath();
+			graphics.moveTo(startPoint, 0);
+			
+			for(var i=1; i + startPoint <= 5; i+=1){
+			
+				graphics.save();
+					graphics.translate(startPoint + i,0);
+			
+					rotateDown = 0
+					
+					//reverse the direction of the semi circle every 2 one to create impression of hills
+					if(i%2 != 0){
+						rotateDown = 1;
+					}
+					graphics.arc(0,0,0.5,Math.PI, 2*Math.PI, rotateDown);
+				graphics.restore();
+			}
+			//close off the path and the colour in	
+			graphics.lineTo(10,0);
+			graphics.lineTo(10,-10);
+			graphics.lineTo(-10,-10);
+			graphics.lineTo(-10,0);
+			graphics.closePath();
+			graphics.fillStyle = "darkgreen";
+			graphics.fill();
+			graphics.stroke();
+		graphics.restore();
+	
+	}
+    
+    
+    function curvingBicycle(dir, speed, scale, distance){
+    	//draws the bicycle moving in a semi circulare pattern for a circle radius 0.5
+    	//dir defines if it moves down or up
+    	graphics.save()
     	
-    	graphics.lineWidth = 0.05;
-    	x = (distance*speed)%1 - 0.5;
-    	y = dir * Math.sqrt(0.5*0.5 - x*x);
-    	graphics.translate(x, y);
-    	graphics.rotate(dir*Math.PI/2 - dir*(Math.PI/(1/speed)*distance)%Math.PI);
-    	graphics.scale(scale,scale);   
-    	
-    	bicycle(-1); 
+			graphics.lineWidth = 0.05;
+			//
+			x = (distance*speed)%1 - 0.5; //moving x coordinate
+			y = dir * Math.sqrt(0.5*0.5 - x*x); // y cordinate along a circle
+			graphics.translate(x, y);
+			graphics.rotate(dir*Math.PI/2 - dir*(Math.PI/(1/speed)*distance)%Math.PI);//rotates the bike to go along the slope
+			graphics.scale(scale,scale);   
+			
+			bicycle(-1); //draws the bicycle
     	    	
 		graphics.restore();
     
     }
     
-	function createRoad(){
 	
-		graphics.save();
-		graphics.beginPath();
-		graphics.moveTo(startPoint, 0);
-		
-		
-		
-		for(var i=1; i + startPoint <= 5; i+=1){
-			
-			graphics.save();
-			graphics.translate(startPoint + i,0);
-			
-			rotateDown = 0
-			
-			if(i%2 != 0){
-				rotateDown = 1;
-			}
-			graphics.arc(0,0,0.5,Math.PI, 2*Math.PI, rotateDown);
-			graphics.restore();
-		}
-		
-		graphics.stroke();
-		
-		graphics.lineTo(10,0);
-		graphics.lineTo(10,-10);
-		graphics.lineTo(-10,-10);
-		graphics.lineTo(-10,0);
-		graphics.closePath();
-		graphics.fillStyle = "darkgreen";
-		graphics.fill();
-		graphics.stroke();
-		graphics.restore();
-	
-	}
- 	
- 	
  	function bicycle(direction){
  	
+ 		//triangulare frame of bike
  		graphics.save();
        		graphics.translate(0, 0.125);
 			graphics.scale(0.25,0.25);
@@ -340,47 +332,44 @@
 			graphics.lineTo(0,1);
 			graphics.closePath();
 			graphics.stroke();
-			
         graphics.restore();
 
-        
+        //right wheel
         graphics.save();	
         	graphics.translate(0.125,0.15); 
         	graphics.scale(0.25,0.25);
         	rotatingWheel(20*direction);
-        
         graphics.restore();
         
+        //left wheel
         graphics.save();	
-        
         	graphics.translate(-0.125,0.15); 
         	graphics.scale(0.25,0.25);
         	rotatingWheel(10*direction);
-        
         graphics.restore();
 
-        	graphics.save();	
+		//andle base
+    	graphics.save();	
 		    graphics.translate(0.125, 0.25);
 		    graphics.rotate(Math.PI/2);
 			graphics.scale(0.25,0.25);
-		line()
-        
+			line()
         graphics.restore();
 
+		//handle bar
         graphics.save();	
 		    graphics.translate(0.125, 0.375);
 		    graphics.rotate(Math.PI/4);
 			graphics.scale(0.1,0.1);
 			line();
-			line();
-		    
+			line();   
         graphics.restore();
         
-		    graphics.save();	
+        //seat
+	    graphics.save();	
 		    graphics.translate(0, 0.375);
 		    graphics.rotate(Math.PI/18);
 			graphics.scale(0.1,0.05);
-
 			filledRect();
         graphics.restore();
         
@@ -388,6 +377,7 @@
  	}
     
     function rotatingWheel(speed) { 
+    	//creates a wheel that rotates at a given speed
         graphics.save(); 
 		    graphics.rotate( (frameNumber*speed) * Math.PI/180 );
 		   	wheel();
@@ -395,15 +385,15 @@
     }
     
     function wheel(){
-    	
+    	//creates a wheel with 4 spokes
     	graphics.save();
-    	circle();
-    	spokes(6);
+			circle();
+			spokes(4);
     	graphics.restore();
     }
     
     function spokes(spokes){
-    	
+    	//creates spokes for a bike
     	numSpokes = spokes;
     	for(var i=1; i <= numSpokes; i++){
     		graphics.save();
@@ -415,11 +405,12 @@
     }
     
 	function strokeOval(x,y,horizontalRadius,verticalRadius) {
+			//creates an oval
            graphics.save();
-           graphics.translate(x,y);
-           graphics.scale(horizontalRadius,verticalRadius);
-           graphics.beginPath();
-           graphics.arc(0,0,1,0,2*Math.PI,false);
+		       graphics.translate(x,y);
+		       graphics.scale(horizontalRadius,verticalRadius);
+		       graphics.beginPath();
+		       graphics.arc(0,0,1,0,2*Math.PI,false);
            graphics.restore();
            graphics.stroke();
 	}
