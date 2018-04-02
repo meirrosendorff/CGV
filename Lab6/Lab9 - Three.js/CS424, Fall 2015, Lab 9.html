@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>CS424, Fall 2015, Lab 9</title>
+<link rel="stylesheet" href="CS424,%20Fall%202015,%20Lab%209_files/labs_print.css" type="text/css" media="print">
+<link rel="stylesheet" href="CS424,%20Fall%202015,%20Lab%209_files/labs_screen.css" type="text/css" media="screen">
+</head>
+<body>
+<div class="content">
+
+<h2>CS 424: Computer Graphics, Fall 2015<br>
+Lab 9: Three.js</h2>
+
+<div class="intro">
+
+<p>In this lab you will build complex models using three.js—an animated merry-go-round and
+at least one other model of your choice.  You will need a copy of the folder
+<a href="http://math.hws.edu/eck/cs424/f15/lab9/lab9-files/" style="white-space:pre">lab9-files</a>, which you can find in
+<i style="white-space:pre">/classes/cs229</i>.  You will work on the file
+<a href="http://math.hws.edu/eck/cs424/f15/lab9/lab9-files/lab9.html">lab9.html</a>.  If you are using Komodo edit, you can
+create a new project in your copy of the folder, or you can copy the folder into an
+existing project directory.  The sub-folder named <a href="http://math.hws.edu/eck/cs424/f15/lab9/lab9-files/resources/" style="white-space:pre">resources</a>
+contains a model of a horse that you will use in the merry-go-round. It also contains several image files that
+you might use as textures.  You can add things to that folder if you want to use your own
+texture images.</p>
+
+<p>As examples of building scenes in three.js, you have the 
+<a href="http://math.hws.edu/graphicsbook/source/threejs/diskworld-1.html">Diskworld</a> program that I handed out in class and
+the <a href="http://math.hws.edu/eck/cs424/f15/windmill/windmill.html" style="white-space:pre">windmill and earth/moon</a> that
+was discussed in class on Wednesday.
+
+</p><p><b>This lab is due next Thursday, November 5.  If you have added anything to the "resources"
+folder, you should copy your entire lab9 folder to the homework directory; if not, it's
+sufficient to submit lab9.html.  Remember that you should also meet with me to discuss your idea for
+a <a href="http://math.hws.edu/eck/cs424/f15/final-project.html">final&nbsp;project</a> by November 5, and you should
+turn in a written project proposal in class on Friday, November&nbsp;6.</b></p>
+
+
+</div>
+
+<div class="section">
+<h3>The Assignment</h3>
+
+<p>Requirements... The first part of the assignment is to make a merry-go-round with at least five horses.  The merry-go-round
+should have a top and a bottom and a pole for each horse.  when animation is turned on, the merry-go-round
+should rotate, and the horses should go up and down.  But the horses should not move in synchrony.  In my
+version, there are two groups of four horses.  One group is going up while the other is going down.
+(Each group was made using a <i>THREE.Object3D</i>, so that I could move the group as a unit.)  You should
+use several different materials on the horses.  You can, if you like, place an object at the center of
+the merry-go-round.  For the second part of the assignment, you should build at least one more object.
+I chose to build something like the "cage" from <a href="http://math.hws.edu/eck/cs424/f15/lab4/index.html">Lab&nbsp;4</a>,
+but you can build whatever you like, as long as it is a complex object.  It does not have to be
+animated.  Your scene should use at
+least two texture images.  Here is a screen shot of my version:</p>
+
+<p class="np" align="center"><img src="CS424,%20Fall%202015,%20Lab%209_files/lab7.png" height="247" width="700"></p>
+
+<p>Some notes... There are issues with loading images and models in JavaScript, which are discussed below.
+But note in particular that Chrome will not load them from the local file system.  Firefox will load them,
+as long as they are in a sub-directory in the same directory as the HTML file that uses them.</p>
+
+<p>The cylinders that I use for the top and bottom of my merry-go-round have radius 10.  Three.js cylinders
+have their centers at (0,0,0) and their axis lying along the y-axis.  <b>Note that the
+horse model is huge and will have to be scaled down.</b>  I applied a scaling factor of 0.02 to the horse.</p>
+
+<p>You should start by building the merry-go-round without the horses and without any textures.  Note that to get a pole into
+position, you need to first translate it to a point near the edge of the merry-go-round, then rotate it
+about the origin to get it into position.  Since the transformations on a given object are applied in
+the order scale/rotate/translate, you will need an extra <i>Object3D</i> to do the rotation after the
+translation.</p>
+
+<p>My poles have a subtle color variation that is due to a paisley texture applied to a yellow pole.  Since the
+texture is rather stretched and distorted, it mainly just gives the poles a mottled appearance.</p>
+
+<p>There is only one light in the original scene.  You will probably want to add some additional lighting.
+I added two rather dim lights, a directional light shining from above and a point light in the center of the
+merry-go-round.</p>
+
+<p>Once you have the basic object built, you can add code to the <i>createWorld</i>()
+function to start the process of loading the horse model and the texture images, as
+described in the next section.</p>
+
+</div>
+
+<div class="section">
+<h3>The Asynchronous Loading Problem</h3>
+
+<p>Images and models for use with three.js are loaded <i>asynchronously</i>.  That is, your code does something
+that starts the process of loading the resource file, but does not wait for the process to complete.  Instead
+of waiting, you provide a <i>callback function</i> that the system will call when the loading has completed.
+When the callback function is called, the resource is ready for use.  However, in the meantime, you have to
+cope with the fact that your scene is being drawn without the resource.  One approach is not to draw anything,
+except maybe a progress bar, until all resources have been loaded.  But that leaves the user with nothing to
+look at.  Another approach is to display the scene with missing resources and add them when they arrive.
+You will use the latter approach in this lab.</p>
+
+<p>Three.js provides some utility functions and classes to help with asynchronous loading.  For loading
+a texture image, there is the function <i>THREE.ImageUtils.loadTexture</i>.  I use it in the following
+method, which you can copy into your script:
+
+</p><pre class="code">function makeTexture(imageURL, material) {
+    function callback() { // Function to react when image load is done.
+        if (material) {
+            material.map = texture;  // Add texture to material.
+            material.needsUpdate = true;  // Required when material changes.
+        }
+        render();  // Render scene with texture that has just been loaded.
+    }
+    var texture = THREE.ImageUtils.loadTexture(imageURL, undefined, callback);
+    return texture;
+}
+</pre>
+
+<p class="np">This function can be used in two ways.  If you call it with two parameters, then the
+second parameter should be the material to which you want to apply the texture; the callback
+function will add the image texture to the material before rendering the scene.  In the meantime,
+the material will just show its basic color.  When you do things
+this way, it is not necessary to use the return value from the <i>makeTexture</i>() function.</p>
+
+<p>If you call <i>makeTexture</i>() with just one parameter, then you will want to use the return
+value, which represents the Three.js texture object that has been created.  You can use that on a
+material as you create the material.  For example,</p>
+
+<pre class="code">var materialWithBrickTexture = new THREE.MeshLambertMaterial({
+    color: "white",
+    map: makeTexture("resources/brick.jpg")
+});
+</pre>
+
+<p class="np">Note that although the Three.js texture object has been created by <i>makeTexture</i>,
+it does not yet have the image that will be used for the texture.  While waiting for the image to
+load, the object will be black.</p>
+
+<p>(Note, by the way, that you can use the same textured material on several objects.  The image will
+appear on all of the objects that use the texture, once the image has been loaded.
+Also note that then when you clone an object, its material is not cloned.  The clone shares the
+material with the original.)</p>
+
+<hr align="center" width="33%">
+
+<p>As for models, Three.js has the class <i>THREE.JSONLoader</i>.  An object of type <i>JSONLoader</i>
+had a <i>load</i>() method for loading models in a particular format used by Three.js.  (There are other
+classes for loading models in other formats.)  The horse model, which was part of the Three.js download,
+is in that format.  You can use the following function, with parameter "resources/horse.js", to
+load the horse model.  The horses should be can be created and added to the scene in the <i>callback</i> function.
+(Don't forget to scale the horse.)</p>
+
+<pre class="code">function loadModel(modelURL) {
+    function callback(geometry) {
+        // To be executed when the model has fully loaded.  The parameter
+        // is geometry that can be used for a THREE.Mesh object.
+        
+        render();  // Render the scene with the newly added objects.
+        
+    }
+    var loader = new THREE.JSONLoader();
+    try {
+        loader.load(modelURL, callback);
+    }
+    catch (e) {
+        // Note: Chrome gives an error if loading from local file system.
+        console.log("Error loading model from " + modelURL);
+    }
+}
+</pre>
+
+<p class="np">Note that Firefox will print a message to the console when the horse is loaded saying
+"not well-formed".  This is not actually an error, and you should ignore it.</p>
+
+<p>By the way, the horse geometry does come with texture coordinates, but they are not very useful.
+I tried making textured horses, but they didn't look good, so I went with solid colors.  I suspect
+that the texture coordinates were designed to be used with a custom texture that would make the horse
+look more like a horse.</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</body></html>

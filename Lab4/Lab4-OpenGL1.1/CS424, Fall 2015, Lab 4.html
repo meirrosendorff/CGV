@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>CS424, Fall 2015, Lab 4</title>
+<link rel="stylesheet" href="CS424,%20Fall%202015,%20Lab%204_files/labs_print.css" type="text/css" media="print">
+<link rel="stylesheet" href="CS424,%20Fall%202015,%20Lab%204_files/labs_screen.css" type="text/css" media="screen">
+<style>
+img {
+   border:2px solid black;
+}
+</style>
+</head>
+<body>
+<div class="content">
+
+<h2>CS 424: Computer Graphics, Fall 2015<br>
+Lab 4: Introducing OpenGL 1.1</h2>
+
+<div class="intro">
+
+
+<p>This is our first lab on 3D graphics.  You will be working with OpenGL 1.1,
+drawing and transforming simple shapes.  You can work either in Java or in&nbsp;C.
+If you use Java, you should work on a copy of the file 
+<a href="http://math.hws.edu/eck/cs424/f15/lab4/Lab4.java">Lab4.java</a>.  If you use C, should get the file
+<a href="http://math.hws.edu/eck/cs424/f15/lab4/lab4.c">lab4.c</a> instead.  You can find a copy of each file in
+<i style="white-space:pre">/classes/cs424</i></p>
+
+<p>We have not yet covered a lot of things that are necessary for
+realistic-looking 3D scenes.  To avoid disappointing you with the look of the scenes
+in this lab, the starter files do some setup in their initialization subroutines
+that you are not expected to understand.  In particular, they set up a
+perspective projection and turn on some basic lighting effects.</p>
+
+<p>To program in Java, you will need to set up Eclipse to use the JOGL API.
+See <a href="http://math.hws.edu/graphicsbook/c3/s6.html#gl1geom.6.2">Subsection&nbsp;3.6.2</a>
+for instructions on doing that.  The basic idea is to make a "User Library" containing
+the JOGL files.  Then you can start a new project and add the JOGL user library to the
+project.  There are copies of the JOGL .jar files and the native libraries for Linux
+in <i style="white-space:pre">/classes/cs424/jogl-libraries</i>.
+You can also get copies of the .jar files and the native libraries for 
+Linux, Windows, or Mac from 
+<a href="http://math.hws.edu/eck/cs424/jogl_2_3_support/" style="white-space:pre">http://math.hws.edu/eck/cs424/jogl_2_3_support/</a>.
+Be sure to read all the instructions in the textbook and follow them carefully!</p>
+
+<p>For C programming, there is no special setup.  The OpenGL libraries for C are installed in
+Linux on the lab computers.  However, we have not installed an IDE for C programming.
+You can edit your C programs in a text editor such as gedit or Komodo Edit, and you can compile and
+run them on the command line.  For this lab, you can use this compilation command:</p>
+
+<pre style="font-style:normal">      gcc -o lab4 lab4.c -lGL -lglut
+</pre>
+
+<p class="np">The program can then be run with the command</p>
+
+<pre style="font-style:normal">     ./lab4
+</pre>
+
+<p class="np">If you need to print out debugging messages, use the standard IO function, printf,
+which works in the same way Java's System.printf.  That is, you can use it to print out
+a string (usually with a "\n" at the end for a carriage return), and you can use it
+with a format string to print out the values of variables.  For example,</p>
+
+<pre style="font-style:normal">     printf("n is %d, x is %1.5f\n", n, x);
+</pre>
+
+<p><b>Turning in your work:</b>
+Your completed program must be submitted by the beginning of the lab period next Thursday.
+You can just copy the completed lab4.c or Lab4.java into your homework folder in
+<i style="white-space:pre:">/classes/cs424/homework</i>. (Or put it inside a
+folder named lab4 if you want.)</p>
+
+
+</div>
+
+
+<div class="section">
+<h3>A Note About Anaglyph Stereo</h3>
+
+<p>To add a little interest to the lab, the program that you will be working on implements an
+<a href="https://www.google.com/search?hl=en&amp;site=imghp&amp;tbm=isch&amp;source=hp&amp;biw=1165&amp;bih=830&amp;q=anaglyph&amp;oq=anaglyph&amp;gs_l=img.3..0l10.3467.4833.0.5681.8.7.0.1.1.0.97.636.7.7.0....0...1ac.1.64.img..0.8.638.PILPw_vuzTM">anaglyph&nbsp;stereo</a>
+view of the objects that you will draw. An anaglyph stereo image is meant to be viewed through red/cyan
+3D glasses. (I will give you a pair in lab.) On the screen, the view from the left eye is drawn using only
+shades of red, and the view from the right eye uses only shades of green and blue.
+In the program, anaglyph mode is turned on and off by pressing the space bar.
+Since color anaglyph didn't work very well, the program turns color off when in anaglyph mode.
+Here's how the program will draw the "cage" that you make at the end of the lab, in anaglyph mode:</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/anaglyph.png" height="299" width="300"></p>
+
+<p>You do not have to do any work for this part of the lab.  I will explain how it works in 
+class.  However, here's the basic idea:</p>
+
+<ol>
+<li>Move the viewer to the position of the left eye, and aim the view towards the object;</li>
+<li>Draw the scene as usual, but writing only to the <i>red</i> color channel;</li>
+<li>Clear the depth buffer (but NOT the color buffer!);</li>
+<li>Move the viewer to the position of the right eye, and aim the view towards the object;</li>
+<li>Draw the scene as usual, writing only to the <i>green</i> and <i>blue</i> color channel;</li>
+<li>Go back to drawing to all color channels.</li>
+</ol>
+
+<p class="np">(Do you see why step number 3 is essential?)  Note that the transformations
+have to be applied first, before any modeling transformations.</p>
+
+<p>The only new OpenGL feature that is needed to implement all this is the ability to
+control which color channels are being written.  The function</p>
+
+<pre class="code">glColorMask( r, g, b, a );
+</pre>
+
+<p class="np">can do that. It is not mentioned in the textbook. The parameters to
+<i>glColorMask</i> are boolean values.  (For Java,
+<i>true</i> and <i>false</i> are used; for C, 1 and 0 are used to represent the boolean values.)
+The parameters <i>r</i>, <i>g</i>, <i>b</i> and <i>a</i> control writing to the red, green, blue, and alpha color
+channels, respectively.  A <i>true</i> value means that it is possible to
+write to the channel; a <i>false</i> value blocks writing to the channel.
+In the initial state, of course, all the color channels are enabled.
+To restore the initial state, call <i>glColorMask</i> with all parameters
+set to true.</p>
+
+
+</div>
+
+
+
+
+<div class="section">
+<h3>Draw a Shape</h3>
+
+<p>For this lab, you will be drawing six objects using OpenGL.  When you run the
+program, hitting one of the number keys 1 through&nbsp;6 will select the object that
+is displayed.  The program already sets the value of a global variable, <i>objectNumber</i>,
+to tell you which object to draw.  The user can rotate the object using the arrow, PageUp,
+PageDown, and Home keys.  The <i>display</i>() subroutine is called to
+draw the object.  That subroutine in turn calls <i>draw</i>(), and it is inside
+<i>draw</i>() where you should do your work.  (The place is marked with a TODO.)</p>
+
+<p>Object number 1 is a simple 2D shape, which you should draw directly, using <i>glBegin</i>(),
+<i>glEnd</i>(), <i>glVertex2f</i>(), and <i>glColor3f</i>.  You should use different colors
+for different vertices; just remember that if you use the same vertex twice, you should
+use the same color in both cases.  Here is the shape, with the vertices labeled:</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/shape.png" style="border:none" height="161" width="185"></p>
+
+<p class="np">It is possible to make this shape using the primitive GL_TRIANGLE_FAN
+or GL_QUAD_STRIP.  Other primitives are possible, including GL_QUADS and GL_TRIANGLES,
+but they require a little more work.</p>
+
+</div>
+
+
+
+<div class="section">
+<h3>Draw a Wireframe Polyhedron</h3>
+
+<p>Object number 2 is a wireframe polyhedron.  That is, you will just draw the <b>edges</b> of the
+polyhedron.  The particular polyhedron is called a <i>stellated dodecahedron</i>.  It has 60
+triangular faces.  The data for the polyhedron is already in the program, in two two-dimensional arrays named
+<i>dodecVertices</i> and <i>dodecTriangles</i>.</p>
+
+<p>The first array, <i>dodecVertices</i>, is a 2D array of <i>double</i> that
+contains the (x,y,z) coordinates of the vertices of the polyhedron.
+For example, vertex number 13 has coordinates (<i>dodecVertices</i>[13][0], <i>dodecVertices</i>[13][1],
+<i>dodecVertices</i>[13][1]).  You can use these coordinates in the function <i>glVertex3d</i>(x,y,z).</p>
+
+<p>The second array, <i>dodecTriangles</i>, is a 2D array of <i>int</i>.  Each row of the array contains
+three integers, giving the vertex numbers for the vertices of one of the triangular faces of the polyhedron.
+That is, the integers in <i>dodecTriangles</i> are indices into the vertex array.  For example,
+<i>dodecTriangles</i>[7][0] is the vertex number for the first vertex of face number 7.</p>
+
+<p>Your job is to draw the outline of each of the 60 triangular faces.  You can do that by drawing 
+each face as a primitive of type <i>GL_LINE_LOOP</i>.  This can easily get confusing.  When processing face
+number <i>i</i>, I suggest that you give names to the vertex numbers for that face.  For example,</p>
+
+<pre class="code">int v = dodecTriangles[i][j];  // Vertex number for vertex j of face i.
+</pre>
+
+<p class="np">(If you still find this confusing, you can look ahead at the discussion of
+"Indexed Face Sets" in
+<a href="http://math.hws.edu/graphicsbook/c3/s4.html#gl1geom.4.1">Subsection&nbsp;3.4.1</a>.
+But remember that here you are drawing the edges, not the faces, of the polyhedron.)</p>
+
+<p><b>Important Note:</b> A wireframe should be drawn with lighting effects turned off!  To implement that,
+you should use the command</p>
+
+<pre class="code">glDisable(GL_LIGHTING);  // or gl2.glDisable(GL2.GL_LIGHTING) in Java
+</pre>
+
+<p class="np">before you draw the polyhedron, and</p>
+
+<pre class="code">glEnable(GL_LIGHTING);  // or gl2.glEnable(GL2.GL_LIGHTING) in Java
+</pre>
+
+<p class="np">after you draw the polyhedron.</p>
+
+
+</div>
+
+
+
+<div class="section">
+<h3>Use GLUT (and Transforms)</h3>
+
+<p>Object number 3 is a very simple example of using GLUT and transforms.  This is just
+a warm-up for the remaining objects.  The third
+object is a solid, 3D object that consists of a cone sitting on top
+of a cylinder:</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/arrow.png" height="269" width="188"></p>
+
+<p class="np">The cone and the cylinder can be drawn using the GLUT library:</p>
+
+<pre class="code">glutSolidCylinder( radius, height, 32, 8 );
+
+glutSolidCone( radius, height, 32, 8 );
+</pre>
+
+<p class="np">(In Java, the method names will be <i>glut.glutSolidCylinder</i>
+and <i>glut.glutSolidCone</i>.)  The first two parameters specify the size of the
+object.  The last two are "slices" and "stacks" and determine how smooth the
+curved surfaces will be; the values 32 and 8 are fine for this lab.</p>
+
+<p>For this example, use radius = 3 and height = 5.</p>
+
+<p>Both the cone and the cylinder are drawn with the center of their basees
+at (0,0,0) and with their axes lying along the positive z-axis (that is,
+pointing directly out of the screen, assuming no transformation has been
+applied).  So, if you just use the above commands, the cone will be inside
+the cylinder!
+Obviously, you will need to apply a transformation.  The complete
+object should have its center at (0,0,0) for proper display.  It will still
+be pointing directly at you, so you will have to rotate it to get a
+better view.</p>
+
+<p>Don't forget to use <i>glPushMatrix</i>() and <i>glPopMatrix</i>() to
+limit the effect of any transformation that you apply!</p>
+
+</div>
+
+<div class="section">
+<h3>Build a Cage</h3>
+
+<p>Objects number 4, 5, and 6 are stages in building a "cage" out of cylinders and
+spheres.  The cage, object number 6, has eight spheres at the vertices of a cube.  The centers are
+the points (-4,-4,-4), (-4,-4,4), (-4,4,-4), etc.  There is a narrow cylinder
+lying along each edge of the cube.  You should use different colors for the cylinders and
+for the spheres.  Note that a sphere can be drawn using the GLUT function</p>
+
+<pre class="code">glutSolidSphere( radius, 32, 32 );
+</pre>
+
+<p class="np">or <i>glut.glutSolidShpere</i> for Java.  The center of the sphere is
+at (0,0,0).  The first parameter is the radius.  The other two parameters are, again,
+"slices" and "stacks"; you can use the value 32 for this lab.</p>
+
+<p>Object number 4 is a "bar" consisting of a cylinder with a sphere at each end.
+The cylinder lies along the x-axis, and the centers of the spheres are at (-4,0,0) and (4,0,0):</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/bar.png" height="54" width="254"></p>
+
+<p class="np">You should write a subroutine to draw the bar.  Note that for Java,
+you will need to pass <i>gl2</i> as a parameter to the subroutine.</p>
+
+<p>Object number 5 is square shape that can be made out of two copies of the bar,
+plus two additional cylinders.  The square lies in the xy-plane, and the centers
+of the four spheres are at (-4,4,0), (4,4,0), (-4,-4,0), and (4,-4,0).  Again,
+you should write a subroutine to draw this:</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/square.png" height="249" width="248"></p>
+
+<p>Finally, object number 6 is the full cage, which can be made from two copies of
+the square, plus four additional cylinders:</p>
+
+<p class="np" style="text-align:center"><img src="CS424,%20Fall%202015,%20Lab%204_files/cage.png" height="351" width="347"></p>
+
+</div>
+
+
+
+
+</div>
+
+
+</body></html>
