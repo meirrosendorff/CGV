@@ -62,7 +62,7 @@ float materials[][13] = {
 
 void setMaterial(int index){
 
-	//partitions the chose material and sets those properties
+	//partitions the chosen material and sets those properties
 	float properties[3][4];
 	float shine = materials[index][12];
 	for (int i = 0; i < 3; i++){
@@ -75,6 +75,7 @@ void setMaterial(int index){
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, properties[0]);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, properties[1]);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, properties[2]);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, properties[0]);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shine);
 	
 	
@@ -82,7 +83,7 @@ void setMaterial(int index){
 }
  
 void drawPoly(struct Polyhedron poly, bool solid){
-
+	//draws the given polyhedra
 	int j = -1;
 	
 	for (int i = 0; i < poly.faceCount; i++){ //iterate over the faces
@@ -91,7 +92,7 @@ void drawPoly(struct Polyhedron poly, bool solid){
 			glBegin(GL_TRIANGLE_FAN); //if solid use a triangle fan
 		}else{
 			glBegin(GL_LINE_LOOP);	//if not solid
-			glDisable(GL_LIGHTING);	
+			glDisable(GL_LIGHTING);	//disable lighting
 		}
 		
 		//set the face colour
@@ -117,7 +118,6 @@ void drawPoly(struct Polyhedron poly, bool solid){
 			float y = poly.vertices[poly.faces[j] * 3 + 1];
 			float z = poly.vertices[poly.faces[j] * 3 + 2];
 			glVertex3f(x,y,z);
-		
 		}
 		
 		glEnd();
@@ -195,16 +195,16 @@ void display() {
     glPopMatrix();
     
     
-    glPushMatrix();
-		glTranslatef(0,0.5,7);
+    glPushMatrix(); // draw a cube
+		glTranslatef(0,0,7);
 		setMaterial(0);
-		drawPoly(truncatedRhombicDodecahedron, 1);
+		drawPoly(cube, 1);
     glPopMatrix();
      
-    glPushMatrix();
-		glTranslatef(-8,0.15,9);
-		setMaterial(0);
-		drawPoly(octahedron, 1);
+    glPushMatrix(); // draw a wire octahedron
+		glTranslatef(-8,0,9);
+		setMaterial(10);
+		drawPoly(octahedron, 0);
     
     glPopMatrix();     
      
@@ -230,22 +230,18 @@ void initGL() {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHT2);
+   
+   	//Create a red Light
+     
+    float red1[4] = {0.6, 0.4, 0.4, 1}; //diffuse color
+    float red2[4] = { 0.8, 0, 0, 1}; //ambient color
+    float red3[4] = {0.15,0, 0,  1}; // speculare colour
+    float pos[4] = {-9,2,0,1};		//position
+    glLightfv(GL_LIGHT1, GL_DIFFUSE,red1);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, red2);
+    glLightfv(GL_LIGHT1 ,GL_SPECULAR, red3);
+    glLightfv(GL_LIGHT1 ,GL_POSITION, pos);
     
-    float blue1[4] = {0.4, 0.4, 0.6, 1};
-    float blue2[4] = {0, 0, 0.8, 1};
-    float blue3[4] = {0, 0, 0.15, 1};
-    glLightfv(GL_LIGHT1, GL_DIFFUSE,blue1);
-    //glLightfv(GL_LIGHT1, GL_AMBIENT, blue2);
-    glLightfv(GL_LIGHT1 ,GL_SPECULAR, blue3);
-    
-    float red1[4] = {0.6, 0.4, 0.4, 1};
-    float red2[4] = { 0.8, 0, 0, 1};
-    float red3[4] = {0.15,0, 0,  1};
-    glLightfv(GL_LIGHT2, GL_DIFFUSE,red1);
-    //glLightfv(GL_LIGHT2, GL_AMBIENT, red2);
-    glLightfv(GL_LIGHT2 ,GL_SPECULAR, red3);
-    // TODO configure better lighting!
 }  // end initGL()
 
 
