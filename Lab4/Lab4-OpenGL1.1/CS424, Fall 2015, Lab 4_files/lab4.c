@@ -130,7 +130,7 @@ float radius = 0;
 float height = 0;
 
 
-//draws a bar with spheres on the endss
+//draws a bar with spheres on the ends
 
 void sphereBar(){
 
@@ -170,7 +170,7 @@ void twoBars(){ // draws two bars seperated by 8 units
 }
 
 
-void barSquare(){
+void barSquare(){ //creates a square of bars
 
 	twoBars();
 	
@@ -184,7 +184,7 @@ void barSquare(){
 
 }
 
-void barCube(){
+void barCube(){ // creates a cube
 
 	for (int i = 0; i < 4; i++){
 	
@@ -277,20 +277,20 @@ void draw() {
 		
 			break;
 		
-		case 3:
+		case 3: // draws a cone
 		
 			radius = 3;
 			height = 5;
 			
 			glPushMatrix();
-			
+			//make the thing point in the right direction
 			glRotatef(90,0,1,0);
 			glRotatef(-45,1,0,0);
 			glColor3f(1,0.5,0);
 			
 				glPushMatrix();
 							
-					glTranslatef(0,0,-height);
+					glTranslatef(0,0,-height); // translate down to put the cone on top
 					glutSolidCylinder( radius, height, 32, 8 );
 
 				glPopMatrix();
@@ -301,19 +301,19 @@ void draw() {
 			
 			break;
 			
-		case 4:
+		case 4://draws sphere bar
 		
 			sphereBar();
 		
 			break;
 		
-		case 5:
+		case 5:// draws a square of bars
 		
 			barSquare();
 		
 			break;
 		
-		case 6:
+		case 6: //draws a cube of bars
 		
 			barCube();
 			
